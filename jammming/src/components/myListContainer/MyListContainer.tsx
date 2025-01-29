@@ -10,14 +10,12 @@ import { useTracksContext } from '../context/TracksContext';
 
 function MyListContainer() {
 
-  const DEFAULT_LIST_NAME = 'My List Name';
+  const DEFAULT_LIST_NAME = 'New List Name';
 
   const { myTracks, removeFromMyTrack } = useTracksContext();
 
   const [isEditing, setIsEditing] = useState(false);
   const [listName, setListName] = useState(DEFAULT_LIST_NAME);
-
-  console.log(listName);
 
   const onShowEditHandler = () => {
     setIsEditing((curIsEditing) => !curIsEditing);
