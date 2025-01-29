@@ -24,10 +24,11 @@ const SpotifyLogin: React.FC = () => {
       scope: scope,
       redirect_uri: redirectUri,
       state: state,
+      show_dialog: true,
     });
 
     const spotifyAuthUrl = `https://accounts.spotify.com/authorize?${queryParams}`;
-    window.location.href = spotifyAuthUrl; // Перенаправление пользователя
+    window.location.href = spotifyAuthUrl;
   };
   return <button onClick={handleLogin}>Log in with Spotify</button>;
 };
