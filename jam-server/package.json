@@ -1,0 +1,15 @@
+{
+  "name": "jam-server",
+  "version": "1.0.0",
+  "description": "serever",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "server"
+  ],
+  "author": "odatso",
+  "license": "ISC"
+}
