@@ -19,6 +19,7 @@ import { config } from 'dotenv';
 config();
 const PORT = 3000;
 let curState = '';
+let curCode = '';
 
 const app = express();
 app.listen(PORT, () => {
@@ -26,23 +27,38 @@ app.listen(PORT, () => {
 });
 
 app.post('/state', (req, res, next) => {
-  if (!curState) {
     const query = req.query;
-    curState = query.state;
+    curState = query.state || curState;
+    curCode = query.code || curCode;
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.send(curState);
-  }
+    res.send({curCode, curState});
+
 });
 
 app.get('/state', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.send(curState);
+  res.send({
+    code: curCode,
+    state: curState,
+  });
+});
+
+app.post('/logout', (req, res, next) => {
+  curState = '';
+  curCode = '';
+  console.log('logging out', curState, curState);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.send({
+    code: curCode,
+    state: curState,
+  });
 });
 
 app.get('/token', (req, res, next) => {
   const query = req.query;
   if (curState === query.state && query.code) {
-    console.log('get token!');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
