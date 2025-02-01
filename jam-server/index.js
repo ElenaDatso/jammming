@@ -1,19 +1,3 @@
-// import { createServer } from 'node:http';
-
-// config();
-
-// const server = createServer((req, res) => {
-//   res.statusCode = 200;
-//   res.setHeader('Access-Control-Allow-Origin', '*'); // Разрешает запросы с любого домена
-//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Разрешённые методы
-//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-//   res.end(JSON.stringify({ message: 'Hello World' }));
-// });
-
-// server.listen(3000, () => {
-//   console.log('Server running at http://localhost:3000/');
-// });
-
 import express from 'express';
 import { config } from 'dotenv';
 config();
