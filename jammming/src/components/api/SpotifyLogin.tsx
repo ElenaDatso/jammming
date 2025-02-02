@@ -1,20 +1,23 @@
-import queryString, { ParsedUrl } from 'query-string';
-import React, { useEffect, useState } from 'react';
+import queryString from 'query-string';
+import React, { useEffect } from 'react';
 import { useAuthContext } from '../context/AuthProvider';
 import { generateRandomString } from './generateRandomString';
 
-const cliendUrl = 'http://localhost:5173/'
+const cliendUrl = 'http://localhost:5173/';
 const clientId = '1003e460eacc42e9b994dd5e93b70881';
 const redirectUri = cliendUrl + 'authorized';
 const scope = 'user-read-private user-read-email';
 const serverUrl = 'http://localhost:3000/';
 
-const fetchStateAndCode = async () =>
-  await fetch(`${serverUrl}state`)
-    .then((res) => res.json())
-    .then((res) => {
-      return res;
-    });
+const fetchStateAndCode = async () => {
+  try {
+    const res = await fetch(`${serverUrl}state`);
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching state:', error);
+    return null;
+  }
+};
 
 const postStateAndCode = async (state?: string, code?: string) => {
   const queryParams = queryString.stringify({
@@ -51,6 +54,19 @@ const sendAuthRequest = async () => {
   }
 };
 
+const getToken = async () => {
+  try {
+    const result = await fetch(`${serverUrl}token`);
+    if (result.ok) {
+      return true
+    } else {
+      return false
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const handleLogOut = async () => {
   try {
     const response = await fetch(`${serverUrl}logout`, {
@@ -71,43 +87,53 @@ const SpotifyLogin: React.FC = () => {
     setIfAuthHandler,
     setAccessStatusHandler,
     isAuthorized,
-    accessStatus,
   } = useAuthContext();
 
-  const [curState, setState] = useState<null | string>(null);
-  const [curUrl, setCurUrl] = useState<ParsedUrl | null>(null);
-
   useEffect(() => {
-    const state = async () => {
-      const data = await fetchStateAndCode();
-      console.log(data, data.state, data.code);
-      setState(data.state);
-      if (data.state && data.code) {
-        setIfAuthHandler(true);
-        setAccessStatusHandler('corfirmed');
-      }
-    };
-    state().catch((e) => console.log(e));
-    console.log(isAuthorized, accessStatus);
+  const handleAuthRedirect = async () => {
+    const urlParams = queryString.parse(window.location.search);
+    const urlCode = urlParams.code as string;
+    const urlState = urlParams.state as string;
 
-    const url = queryString.parseUrl(window.location.href);
-    setCurUrl(url);
-    if (curUrl?.query.code && curUrl?.query.state === curState) {
-      setIfAuthHandler(true);
-      setAccessStatusHandler('corfirmed');
-      console.log(isAuthorized, accessStatus);
-      const postedData = async () => {
-        const code = curUrl.query.code as string;
-        const data = await postStateAndCode(curState || undefined, code);
-        console.log(data);
-        if (data.curCode && data.curState) {
-          console.log(data);
-          history.replaceState(null, '', location.pathname);
+    if (urlCode && urlState) {
+      console.log('User returned from Spotify:', { urlCode, urlState });
+
+      try {
+        const serverData = await fetchStateAndCode();
+        console.log('Server state:', serverData.state);
+
+        if (serverData.state !== urlState) {
+          console.error('State mismatch! Possible security risk.');
+          return;
         }
-      };
-      postedData().catch((e) => console.log(e));
+
+        const postData = await postStateAndCode(urlState, urlCode);
+        console.log(postData)
+
+        if (postData?.curCode && postData?.curState) {
+          console.log('getting token');
+          const isToken = await getToken();
+          console.log('token:', isToken);
+
+          if (isToken) {
+            setIfAuthHandler(true);
+            setAccessStatusHandler('corfirmed');
+          } else {
+            console.warn('Failed to get token');
+          }
+        } else {
+          console.warn('Failed to retrieve auth code.');
+        }
+
+        history.replaceState(null, '', location.pathname);
+      } catch (error) {
+        console.error('Error handling Spotify redirect:', error);
+      }
     }
-  }, [curState, isAuthorized]);
+  };
+
+  handleAuthRedirect();
+  }, []);
 
   return (
     <>
@@ -117,6 +143,8 @@ const SpotifyLogin: React.FC = () => {
       {isAuthorized && (
         <button
           onClick={() => {
+            setIfAuthHandler(false);
+            setAccessStatusHandler('unset');
             handleLogOut();
           }}
         >
