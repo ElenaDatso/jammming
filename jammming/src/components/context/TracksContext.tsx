@@ -1,28 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { myTrack, Track } from '../types/interfaces';
 
-export interface Track {
-  name: string;
-  artists: [
-    {
-      name: string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      [string: string]: any;
-    }
-  ];
-  album: {
-    name: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [string: string]: any;
-  };
-  id: string;
-}
 
-export interface myTrack {
-  track: string;
-  singer: string;
-  album: string;
-  id: string;
-}
+
 
 interface TracksContextType {
   myTracks: myTrack[];

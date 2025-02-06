@@ -6,6 +6,7 @@ import { MdBorderColor, MdCheck } from 'react-icons/md';
 import InputField from '../inputField/InputField';
 import { BsFileMinus } from 'react-icons/bs';
 import { useTracksContext } from '../context/TracksContext';
+import { postPlayList } from '../api/postPlayList';
 
 
 function MyListContainer() {
@@ -27,6 +28,14 @@ function MyListContainer() {
   const getInputValue = (inputValue: string) => {
     setListName(inputValue ? inputValue : DEFAULT_LIST_NAME)
   };
+
+  const postListHandler = async (listName: string) => {
+    const resp = await postPlayList(
+      listName,
+      myTracks.map((item) => item.uri)
+    );
+    console.log(resp);
+  }
 
   return (
     <section className="flex h-full">
@@ -83,7 +92,7 @@ function MyListContainer() {
           <Button
             className="mt-4"
             cb={() => {
-              console.log('button');
+              postListHandler(listName);
             }}
           >
             Add to Spotify

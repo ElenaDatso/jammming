@@ -33,6 +33,7 @@ function ResultsContainer() {
                       singer: item.artists[0].name,
                       album: item.album.name,
                       id: item.name,
+                      uri: item.uri
                     };
                     addToMyTrack(track);
                   }}

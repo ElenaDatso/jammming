@@ -6,7 +6,8 @@ import { generateRandomString } from './generateRandomString';
 const cliendUrl = 'http://localhost:5173/';
 const clientId = '1003e460eacc42e9b994dd5e93b70881';
 const redirectUri = cliendUrl + 'authorized';
-const scope = 'user-read-private user-read-email';
+const scope =
+  'user-read-private user-read-email playlist-modify-private playlist-modify-public';
 const serverUrl = 'http://localhost:3000/';
 
 const fetchStateAndCode = async () => {
@@ -58,7 +59,7 @@ const getToken = async () => {
   try {
     const result = await fetch(`${serverUrl}token`);
     if (result.ok) {
-      return true
+      return await result.json()
     } else {
       return false
     }
@@ -87,6 +88,7 @@ const SpotifyLogin: React.FC = () => {
     setIfAuthHandler,
     setAccessStatusHandler,
     isAuthorized,
+    setUserDataHandler,
   } = useAuthContext();
 
   useEffect(() => {
@@ -111,13 +113,12 @@ const SpotifyLogin: React.FC = () => {
         console.log(postData)
 
         if (postData?.curCode && postData?.curState) {
-          console.log('getting token');
-          const isToken = await getToken();
-          console.log('token:', isToken);
+          const isTokenAndUser = await getToken();
 
-          if (isToken) {
+          if (isTokenAndUser) {
             setIfAuthHandler(true);
             setAccessStatusHandler('corfirmed');
+            setUserDataHandler(isTokenAndUser);
           } else {
             console.warn('Failed to get token');
           }
